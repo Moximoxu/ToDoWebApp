@@ -1,4 +1,23 @@
 <!DOCTYPE html>
+
+<?php
+
+	require_once 'init.php';
+	
+	$tasksQuery = $db->prepare("
+		SELECT ID, name, done
+		FROM tasks
+		WHERE user = :user
+	");
+	
+	$tasksQuery->execute([
+		'user' => $_SESSION['user_id']
+	]);
+	
+	$tasks = $tasksQuery->rowCount() ? $tasksQuery : [];
+	
+?>
+
 <html lang="en"
 <head>
 	<title>WhatToDo To-Do List Web App</title>
@@ -32,91 +51,6 @@
 			font-family:Georgia;
 			font-size:40px;
 		}
-	</style>
-	
-	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color:#33cc33">
-		<ul class="navbar-nav">
-			<li class="nav-item">
-				<a class="nav-link text-white" id="navLogo" href="#"><b>WhatToDo</b></a>
-			</li>
-		</ul>
-	</nav>
-	
-</head>
-
-<body>
-	<div class="list">
-		<h2 class="header">Ikhmal's Tasks</h1>
-		
-		<ol class="tasks">
-			<li>
-				<span class="task">Get a cat</span>
-				<a href="#" class="done_bttn">Mark as done</a>
-			</li>
-			<li>
-				<span class="task done">Look for a munchkin.</span>
-			</li>
-		</ol>
-		
-		<form class="task-add" method="post">
-			<input type="text" name="title" class="input" autocomplete="off" placeholder="Please enter your task" required>
-			<input type="submit" value="Add" class="Submit">
-		</form>
-	</div>
-<!--
-	<div class="container">
-		<form method="post" id="task_form">
-		<div class="table-responsive">
-			<table id="task_data">
-				<tr>
-					<td><input type="checkbox">Find a cat</input></td>
-				</tr>
-			
-				<tr>
-					<td><input type="checkbox">Feed a cat</input></td>
-				</tr>
-			</table>
-		</div>
-		</form>
-		<div align="right">
-			<button type="button" name="addTask" id="addTask" class="btn btn-success">Add Task</button>
-		</div>
-		
-		<div id="user_dialog" title="Add Task">
-			<div class="form-group">
-				<label>What do you want to do?</label>
-				<input type="text" name="task" id="task" class="form-control"/>
-				<span id="errtask" class="text-danger"></span>
-			</div>
-			<div class="form-group" align="center">
-				<input type="hidden" name="row_id" value="hidden_row_id"/>
-				<button type="button" name="save" id="save" class="btn btn-info">Save</button>
-			</div>
-		</div>
-		<div id="action_alert" title="Action">
-			
-		</div>
-	</div>
-	<script>
-	$(document).ready(function(){
-		var count= 0;
-		$('#user_dialog').dialog({
-			autoOpen:false,
-			width:400
-		});
-		
-		$('#addTask').click(function(){
-			$('#user_dialog').dialog('option', 'title', 'Add Task');
-			$('#task').val('');
-			$('#errrask').text('');
-			$('#save').text('Save');
-			$('#user_dialog').dialog('open');
-		});
-	});
-	</script>
-	-->
-	
-	<style>
 		body{
 			background-color:#aeeaae;
 		}
@@ -174,13 +108,42 @@
 		}
 	</style>
 	
-	<?php
-		session_start();
+	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color:#33cc33">
+		<ul class="navbar-nav">
+			<li class="nav-item">
+				<a class="nav-link text-white" id="navLogo" href="#"><b>WhatToDo</b></a>
+			</li>
+		</ul>
+	</nav>
+	
+</head>
+
+<body>
+	<div class="list">
+		<h2 class="header">Ikhmal's Tasks</h1>
 		
-		$_SESSION['user_id'] = 1;
+		<?php if(!empty($tasks)): ?>
+			<ol class="tasks">
+				<?php foreach($tasks as $task): ?>
+					<li>
+						<span class="task<?php echo $task['done'] ? ' done' : '' ?>"><?php echo $task['name']?></span>
+						<?php if(!$task['done']): ?>
+							<a href="#" class="done_bttn">Mark as done</a>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ol>
+		<?php else: ?>
+			<p>You have not added any tasks yet</p>
+		<?php endif; ?>
 		
-		$db = new PDO('mysql:dbname=)
-	?>
+		<form action="add.php" class="task-add" method="post">
+			<input type="text" name="name" class="input" autocomplete="off" placeholder="Please enter your task" required>
+			<input type="submit" value="Add" class="Submit">
+		</form>
+	</div>
+	
+	
 </body>
 
 </html>

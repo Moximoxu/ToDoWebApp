@@ -1,23 +1,4 @@
 <!DOCTYPE html>
-
-<?php
-
-	require_once 'init.php';
-	
-	$tasksQuery = $db->prepare("
-		SELECT ID, name, done
-		FROM tasks
-		WHERE user = :user
-	");
-	
-	$tasksQuery->execute([
-		'user' => $_SESSION['user_id']
-	]);
-	
-	$tasks = $tasksQuery->rowCount() ? $tasksQuery : [];
-	
-?>
-
 <html lang="en"
 <head>
 	<title>WhatToDo To-Do List Web App</title>
@@ -55,7 +36,7 @@
 			background-color:#aeeaae;
 		}
 	
-		.list{
+		.card{
 			background-color:#d6f5d6;
 			margin:20px auto;
 			width:100%;
@@ -100,7 +81,6 @@
 		}
 		
 		.Submit{
-			background-color:#fff;
 			padding:5px 10px;
 			width:100%;
 			margin-top; 10px;
@@ -119,30 +99,35 @@
 </head>
 
 <body>
-	<div class="list">
-		<h2 class="header">Ikhmal's Tasks</h1>
-		
-		<?php if(!empty($tasks)): ?>
-			<ol class="tasks">
-				<?php foreach($tasks as $task): ?>
+	<div class="container">
+		<div class="card">
+			<div class="card-header">
+				<h2 class="header">Ikhmal's Tasks</h2>
+			</div>
+			<div class="card-body" id="tasklist">
+				<ol>
 					<li>
-						<span class="task<?php echo $task['done'] ? ' done' : '' ?>"><?php echo $task['name']?></span>
-						<?php if(!$task['done']): ?>
-							<a href="#" class="done_bttn">Mark as done</a>
-						<?php endif; ?>
+						<span class="task">Find suitable slacks</span>
+						<a href="#" class="done_bttn">Mark as done</a>
 					</li>
-				<?php endforeach; ?>
-			</ol>
-		<?php else: ?>
-			<p>You have not added any tasks yet</p>
-		<?php endif; ?>
-		
-		<form action="add.php" class="task-add" method="post">
-			<input type="text" name="name" class="input" autocomplete="off" placeholder="Please enter your task" required>
-			<input type="submit" value="Add" class="Submit">
-		</form>
+				</ol>
+			</div>
+			<form class="form-action">
+				<input type="text" name="name" class="input" autocomplete="off" placeholder="Please enter your task" required>
+				<button type="submit" class="Submit btn btn-info" id="btnSubmit">Add</button>
+			</form>
+		</div>
 	</div>
 	
+<script>
+
+$(document).ready(function(){
+	$("#btnSubmit").click(function(event){
+		$("")
+	}
+});
+
+</script>
 	
 </body>
 

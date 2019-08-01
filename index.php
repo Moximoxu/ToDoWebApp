@@ -105,27 +105,117 @@
 				<h2 class="header">Ikhmal's Tasks</h2>
 			</div>
 			<div class="card-body" id="tasklist">
-				<ol>
-					<li>
-						<span class="task">Find suitable slacks</span>
-						<a href="#" class="done_bttn">Mark as done</a>
-					</li>
-				</ol>
+				<button type="submit" class="Show btn btn-light" id="btnShow">Show</button>
 			</div>
 			<form class="form-action">
-				<input type="text" name="name" class="input" autocomplete="off" placeholder="Please enter your task" required>
-				<button type="submit" class="Submit btn btn-info" id="btnSubmit">Add</button>
+				<input type="text" id="addtasktxt" name="name" class="form-control" autocomplete="off" placeholder="Please enter your task" required>
+				<button type="submit" class="Submit btn btn-info" id="btnAdd">Add</button>
 			</form>
+		</div>
+	</div>
+
+	<div class="modal fade" id="taskModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">Edit task</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<input type="text" class="w-100" id="editTasktxt">
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="btnsavechanges">Save</button>
+					<button type="button" class="btn btn-danger" id="btndelete" data-dismiss="modal">Delete</button>
+				</div>
+
+			</div>
 		</div>
 	</div>
 	
 <script>
 
-$(document).ready(function(){
-	$("#btnSubmit").click(function(event){
-		$("")
-	}
-});
+	$(document).ready(function(){
+		
+		$("#btnShow").click(function(){
+			var displaytasks = $("#tasklist"); 
+			
+			$.ajax({
+				url:"fetch.php",
+				type:"GET",
+				async:false,
+				success: function(result){
+					var output = "<table><thead><tr><th>Tasks</th></thead><tbody>";
+					for (var i in result) {
+					  output +=
+						"<tr><td>" +
+						result[i].name +
+						"</td></tr>";
+					}
+					output += "</tbody></table>";
+
+				displaytasks.html(output);
+				$("table").addClass("table");
+				}
+			});
+		});
+		
+		$('.task').each(function(){
+			$(this).click(function(event){
+				var text = $(this).text();
+				$('#editTasktxt').val(text);
+				console.log(text);
+			});
+		});
+		
+		$("#btnsavechanges").click(function(event){
+			var change = $("#editTasktxt").val();
+			console.log(change);
+			
+			$.ajax({
+				url:"edit.php",
+				type:"POST",
+				async:false,
+				data: {
+					"name": change,
+				}
+			});
+		});
+		
+		$("#btndelete").click(function(event){
+			console.log("Deleted task");
+			
+			$.ajax({
+				url:"delete.php",
+				type:"POST",
+				async:false,
+				data: {
+					"name": change,
+				}
+			});
+		});
+		
+		$("#btnAdd").click(function(event){
+			var name = $("#addtasktxt").val();
+			console.log(name);
+			
+			$.ajax({
+				url:"add.php",
+				type:"POST",
+				async:false,
+				data: {
+					"name": name,
+				}
+			});
+		});
+		
+	});
 
 </script>
 	

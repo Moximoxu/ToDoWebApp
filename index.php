@@ -105,7 +105,7 @@
 				<h2 class="header">Ikhmal's Tasks</h2>
 			</div>
 			<div class="card-body" id="tasklist">
-				<button type="submit" class="Show btn btn-light" id="btnShow">Show</button>
+				
 			</div>
 			<form class="form-action">
 				<input type="text" id="addtasktxt" name="name" class="form-control" autocomplete="off" placeholder="Please enter your task" required>
@@ -143,30 +143,32 @@
 
 	$(document).ready(function(){
 		
-		$("#btnShow").click(function(){
 			var displaytasks = $("#tasklist"); 
 			
 			$.ajax({
-				url:"fetch.php",
 				type:"GET",
-				async:false,
+				url:"fetch.php",
+				dataType: "json",
 				success: function(result){
-					var output = "<table><thead><tr><th>Tasks</th></thead><tbody>";
+					console.log(result);
+					var num = 1;
+					var output = "<table><thead><tr><th>No.</th><th>Task</th></thead><tbody>";
 					for (var i in result) {
-					  output +=
+						output +=
 						"<tr><td>" +
+						num +
+						"</td><td>" +
 						result[i].name +
 						"</td></tr>";
+						num++;
 					}
 					output += "</tbody></table>";
-
 				displaytasks.html(output);
 				$("table").addClass("table");
 				}
 			});
-		});
 		
-		$('.task').each(function(){
+		$('.listoftask').each(function(){
 			$(this).click(function(event){
 				var text = $(this).text();
 				$('#editTasktxt').val(text);

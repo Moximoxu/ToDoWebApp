@@ -57,10 +57,6 @@
 			opacity:1;
 		}
 		
-		.tasks .task.done{
-			text-decoration:line-through;
-		}
-		
 		.tasks li, task-add input{
 			border:0;
 			border-bottom:1px dashed #ccc;
@@ -86,6 +82,7 @@
 			margin-top; 10px;
 			box-shadow: 3px 3px 0 #ddd;
 		}
+		
 	</style>
 	
 	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color:#33cc33">
@@ -132,7 +129,6 @@
 				<!-- Modal footer -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="btnsavechanges">Save</button>
-					<button type="button" class="btn btn-danger" id="btndelete" data-dismiss="modal">Delete</button>
 				</div>
 
 			</div>
@@ -152,15 +148,28 @@
 				success: function(result){
 					console.log(result);
 					var num = 1;
-					var output = "<table><thead><tr><th>No.</th><th>Task</th></thead><tbody>";
+					var output = "<table><thead style='text-align:center'><tr><th>No.</th><th>Task</th><th>Actions</th></thead><tbody>";
 					for (var i in result) {
-						output +=
-						"<tr><td>" +
-						num +
-						"</td><td>" +
-						result[i].name +
-						"</td></tr>";
-						num++;
+						if (result[i].done == 0){output +=
+							"<tr id='listoftasks'><td>" +
+							num +
+							"</td><td>" +
+							result[i].name + "</td><td><button type='button' class='btn btn-light' id='btndone'>Done</button>"+
+							"<button type='button' class='btn btn-success'>Edit</button>" +
+							"<button type='button' class='btn btn-danger' id='btndelete'>Delete</button>"+
+							"</td></tr>";}
+							
+						else {output +=
+							"<tr id='listoftasks'><td>" +
+							num +
+							"</td><td style='text-decoration:line-through'>" +
+							result[i].name +
+						
+						"</td><td><button type='button' class='btn btn-success'>Edit</button>" +
+						"<button type='button' class='btn btn-danger' id='btndelete'>Delete</button>"+
+						"</td></tr>";}
+						+ num++;
+							
 					}
 					output += "</tbody></table>";
 				displaytasks.html(output);
@@ -168,7 +177,7 @@
 				}
 			});
 		
-		$('.listoftask').each(function(){
+		$('.listoftasks').each(function(){
 			$(this).click(function(event){
 				var text = $(this).text();
 				$('#editTasktxt').val(text);
@@ -191,6 +200,7 @@
 		});
 		
 		$("#btndelete").click(function(event){
+			var dlt = $("#--unknown--").val();
 			console.log("Deleted task");
 			
 			$.ajax({
@@ -198,7 +208,7 @@
 				type:"POST",
 				async:false,
 				data: {
-					"name": change,
+					"ID" : dlt,
 				}
 			});
 		});

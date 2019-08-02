@@ -5,7 +5,8 @@
 	$tasksQuery = $db->prepare("
 		SELECT ID, name, done
 		FROM tasks
-		WHERE user = :user
+		WHERE user = :user 
+		ORDER BY created DESC
 	");
 	
 	// Execute the statement here

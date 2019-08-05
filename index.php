@@ -106,7 +106,7 @@
 			</div>
 			<form class="form-action">
 				<input type="text" id="addtasktxt" name="name" class="form-control" autocomplete="off" placeholder="Please enter your task" required>
-				<button type="submit" class="Submit btn btn-info" id="btnAdd">Add</button>
+				<button type="button" class="Submit btn btn-info" id="btnAdd">Add</button>
 			</form>
 		</div>
 	</div>
@@ -123,12 +123,12 @@
 
 				<!-- Modal body -->
 				<div class="modal-body">
-					<input type="text" class="w-100" id="editTasktxt">
+					<input type="text" class="form-control" id="editTasktxt" placeholder="Please enter a task">
 				</div>
 
 				<!-- Modal footer -->
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" id="btnsavechanges">Save</button>
+					<button type="button" class="btn btn-primary save" id="btnsavechanges">Save</button>
 				</div>
 
 			</div>
@@ -139,77 +139,104 @@
 
 	$(document).ready(function(){
 		
-			var displaytasks = $("#tasklist"); 
+		var displaytasks = $("#tasklist"); 
 			
-			$.ajax({
-				type:"GET",
-				url:"fetch.php",
-				dataType: "json",
-				success: function(result){
-					console.log(result);
-					var num = 1;
-					var output = "<table><thead style='text-align:center'><tr><th>No.</th><th>Task</th><th>Actions</th></thead><tbody>";
-					for (var i in result) {
-						if (result[i].done == 0){output +=
-							"<tr id='listoftasks'><td>" +
-							num +
-							"</td><td>" +
-							result[i].name + "</td><td><button type='button' class='btn btn-light' id='btndone'>Done</button>"+
-							"<button type='button' class='btn btn-success'>Edit</button>" +
-							"<button type='button' class='btn btn-danger' id='btndelete'>Delete</button>"+
-							"</td></tr>";}
-							
-						else {output +=
-							"<tr id='listoftasks'><td>" +
-							num +
-							"</td><td style='text-decoration:line-through'>" +
-							result[i].name +
-						
-						"</td><td><button type='button' class='btn btn-success'>Edit</button>" +
-						"<button type='button' class='btn btn-danger' id='btndelete'>Delete</button>"+
+		$.ajax({
+			type:"GET",
+			url:"fetch.php",
+			dataType: "json",
+			success: function(result){
+				console.log(result);
+				var num = 1;
+				var output = "<table><thead style='text-align:center'><tr><th>No.</th><th>Task</th><th>Actions</th></thead><tbody>";
+				for (var i in result) {
+					if (result[i].done == 0){output +=
+						"<tr class='listoftasks' data-id='" + result[i].id + "'><td>" +
+						num +
+						"</td><td id='tasktxt" + result[i].id + "'>" +
+						result[i].name + "</td><td><button type='submit' class='btn btn-light done' id='btndone'>Done</button>"+
+						"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal'>Edit</button>" +
+						"<button type='button' class='btn btn-danger delete' id='btndelete'>Delete</button>"+
 						"</td></tr>";}
-						+ num++;
 							
-					}
-					output += "</tbody></table>";
-				displaytasks.html(output);
-				$("table").addClass("table");
+					else {output +=
+						"<tr class='listoftasks' data-id='" + result[i].id + "'><td>" +
+						num +
+						"</td><td style='text-decoration:line-through' 'tasktxt" + result[i].id + "'>" +
+						result[i].name +
+						
+					"</td><td><button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal'>Edit</button>" +
+					"<button type='button' class='btn btn-danger delete' id='btndelete'>Delete</button>"+
+					"</td></tr>";}
+					+ num++;
+			
 				}
-			});
+				output += "</tbody></table>";
+			displaytasks.html(output);
+			$("table").addClass("table");
+			}
+		});
 		
-		$('.listoftasks').each(function(){
-			$(this).click(function(event){
-				var text = $(this).text();
-				$('#editTasktxt').val(text);
-				console.log(text);
+		$(document).on("click", "button.done", function(){
+			
+			$(".listoftasks").click(function(){
+				var dataId = $(this).data("id");
+				console.log(dataId);
+				
+				$.ajax({
+				url:"done.php",
+				type:"POST",
+				data: {
+					"id": dataId,
+				}
+				});
+				console.log("Ajax done successful");
 			});
 		});
 		
-		$("#btnsavechanges").click(function(event){
+		$(document).on("click", "button.edit", function(){
+			
+			$(".listoftasks").click(function(){
+				var dataId = $(this).data("id");
+				console.log(dataId);
+				var task = $("#tasktxt" + dataId).text();
+				console.log(task);
+				
+				$("#editTasktxt").val(task);
+			});
+		});
+		
+		$(document).on("click", "button.save", function(){
+			
+			var dataId = $(this).data("id");
+			console.log(dataId);
 			var change = $("#editTasktxt").val();
 			console.log(change);
-			
+				
 			$.ajax({
-				url:"edit.php",
-				type:"POST",
-				async:false,
-				data: {
-					"name": change,
-				}
+			url:"edit.php",
+			type:"POST",
+			data: {
+				"id" : dataId,
+				"name": change,
+			}
 			});
+				console.log("Ajax done successful");
 		});
 		
-		$("#btndelete").click(function(event){
-			var dlt = $("#--unknown--").val();
-			console.log("Deleted task");
+		$(document).on("click", "button.delete", function(){
+			$(".listoftasks").click(function(){
+				var dataId = $(this).data("id");
+				console.log(dataId);
 			
 			$.ajax({
 				url:"delete.php",
 				type:"POST",
-				async:false,
 				data: {
-					"ID" : dlt,
+					"id" : dataId,
 				}
+				});
+				console.log("Ajax done successful");
 			});
 		});
 		
@@ -220,13 +247,18 @@
 			$.ajax({
 				url:"add.php",
 				type:"POST",
-				async:false,
 				data: {
 					"name": name,
 				}
 			});
 		});
 		
+		$(document).on("click", "button", function(){
+			$(".listoftasks").click(function(){
+			var dataId = $(this).data("id");
+			console.log(dataId);
+			});
+		});
 	});
 
 </script>

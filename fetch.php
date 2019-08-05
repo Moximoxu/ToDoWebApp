@@ -3,7 +3,7 @@
 	require_once 'init.php';
 	
 	$tasksQuery = $db->prepare("
-		SELECT ID, name, done
+		SELECT id, name, done
 		FROM tasks
 		WHERE user = :user 
 		ORDER BY created DESC

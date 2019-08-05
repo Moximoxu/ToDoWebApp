@@ -18,4 +18,4 @@ if(isset($_POST['name']) && isset($_POST['id'])){
 		]);
 	}
 }
-header('Location: index2.php');
+header('Location: index.php');

@@ -104,6 +104,9 @@
 			<div class="card-body" id="tasklist">
 				
 			</div>
+			<div>
+				<input type="text" class="secretclss" id="secretid" style="border:1px white;background-color:#d6f5d6;color:#d6f5d6" disabled>
+			</div>
 			<form class="form-action">
 				<input type="text" id="addtasktxt" name="name" class="form-control" autocomplete="off" placeholder="Please enter your task" required>
 				<button type="button" class="Submit btn btn-info" id="btnAdd">Add</button>
@@ -148,12 +151,12 @@
 			success: function(result){
 				console.log(result);
 				var num = 1;
-				var output = "<table><thead style='text-align:center'><tr><th>No.</th><th>Task</th><th>Actions</th></thead><tbody>";
+				var output = "<table class='table-striped table-hover'><thead style='text-align:center'><tr><th>No.</th><th>Task</th><th>Actions</th></thead><tbody>";
 				for (var i in result) {
 					if (result[i].done == 0){output +=
 						"<tr class='listoftasks' data-id='" + result[i].id + "'><td>" +
 						num +
-						"</td><td id='tasktxt" + result[i].id + "'>" +
+						"</td><td scope='col' class='task' id='tasktxt" + result[i].id + "'>" +
 						result[i].name + "</td><td><button type='submit' class='btn btn-light done' id='btndone'>Done</button>"+
 						"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal'>Edit</button>" +
 						"<button type='button' class='btn btn-danger delete' id='btndelete'>Delete</button>"+
@@ -162,10 +165,11 @@
 					else {output +=
 						"<tr class='listoftasks' data-id='" + result[i].id + "'><td>" +
 						num +
-						"</td><td style='text-decoration:line-through' 'tasktxt" + result[i].id + "'>" +
+						"</td><td scope='col' class='task' style='text-decoration:line-through' id='tasktxt" + result[i].id + "'>" +
 						result[i].name +
 						
-					"</td><td><button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal'>Edit</button>" +
+					"</td><td><button type='submit' class='btn btn-dark undone' id='btnundone'>Undone</button>" +
+					"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal'>Edit</button>" +
 					"<button type='button' class='btn btn-danger delete' id='btndelete'>Delete</button>"+
 					"</td></tr>";}
 					+ num++;
@@ -179,6 +183,7 @@
 		
 		$(document).on("click", "button.done", function(){
 			
+			$("button").closest("td.task").css({"color": "red", "border": "2px solid red"});
 			$(".listoftasks").click(function(){
 				var dataId = $(this).data("id");
 				console.log(dataId);
@@ -190,7 +195,29 @@
 					"id": dataId,
 				}
 				});
-				console.log("Ajax done successful");
+				alert('Well done for completing the task!');
+				window.location.reload();
+				console.log("Ajax 'done' successful");
+			});
+		});
+		
+		$(document).on("click", "button.undone", function(){
+			
+			<!--$("button").closest("td").css({"color": "red", "border": "2px solid red"});-->
+			$(".listoftasks").click(function(){
+				var dataId = $(this).data("id");
+				console.log(dataId);
+				
+				$.ajax({
+				url:"undone.php",
+				type:"POST",
+				data: {
+					"id": dataId,
+				}
+				});
+				alert("Task is undoned!");
+				window.location.reload();
+				console.log("Ajax 'undone' successful");
 			});
 		});
 		
@@ -201,15 +228,17 @@
 				console.log(dataId);
 				var task = $("#tasktxt" + dataId).text();
 				console.log(task);
-				
 				$("#editTasktxt").val(task);
+				$("#secretid").val(dataId);
+				var secretnum = document.getElementById("secretid").value;
+				console.log(secretnum);
 			});
 		});
 		
 		$(document).on("click", "button.save", function(){
 			
-			var dataId = $(this).data("id");
-			console.log(dataId);
+			var secretnum = document.getElementById("secretid").value;
+			console.log(secretnum);
 			var change = $("#editTasktxt").val();
 			console.log(change);
 				
@@ -217,11 +246,13 @@
 			url:"edit.php",
 			type:"POST",
 			data: {
-				"id" : dataId,
+				"id" : secretnum,
 				"name": change,
 			}
 			});
-				console.log("Ajax done successful");
+			alert("Task edited successfully!");
+			window.location.reload();
+			console.log("Ajax 'save' successful");
 		});
 		
 		$(document).on("click", "button.delete", function(){
@@ -229,14 +260,22 @@
 				var dataId = $(this).data("id");
 				console.log(dataId);
 			
-			$.ajax({
-				url:"delete.php",
-				type:"POST",
-				data: {
-					"id" : dataId,
+				var sure = confirm("Are you sure you want to delete this task?");
+				if(sure == true){
+					$.ajax({
+						url:"delete.php",
+						type:"POST",
+						data: {
+							"id" : dataId,
+						}
+					});
+					alert("Task deleted successfully!");
+					window.location.reload();
+					console.log("Ajax 'delete' successful");
 				}
-				});
-				console.log("Ajax done successful");
+				else{
+					alert("You cancelled!");
+				}
 			});
 		});
 		
@@ -251,13 +290,9 @@
 					"name": name,
 				}
 			});
-		});
-		
-		$(document).on("click", "button", function(){
-			$(".listoftasks").click(function(){
-			var dataId = $(this).data("id");
-			console.log(dataId);
-			});
+			alert("Successfully added task!");
+			window.location.reload();
+			console.log("Ajax 'add' successful!");
 		});
 	});
 

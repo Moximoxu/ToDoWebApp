@@ -15,4 +15,4 @@ if(isset($_POST['id'])){
 		]);
 	}
 }
-header('Location: index2.php');
+header('Location: index.php');

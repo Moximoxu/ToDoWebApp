@@ -103,14 +103,18 @@
 					<h2 class="header">Ikhmal's Tasks</h2>
 				</div>
 				<div class="card-body" id="tasklist">
-					
+					<table class='table-striped table-hover' id='tasktable'>
+						<thead style='text-align:center'>
+							<tr><th>No.</th><th>Task</th><th>Actions</th>
+						</thead>
+						<tbody id='tasks_name'>
+							
+						</tbody>
+					</table>
 				</div>
-				<div>
-					
-				</div>
-				<form class="form-action">
+				<form class="form-action" method="post" id="add_task">
 					<input type="text" id="addtasktxt" name="name" class="form-control" autocomplete="off" placeholder="Please enter your task" required>
-					<button type="button" class="Submit btn btn-info" id="btnAdd">Add</button>
+					<button type="submit" class="Submit btn btn-info" id="btnAdd">Add</button>
 				</form>
 			</div>
 		</div>
@@ -144,59 +148,69 @@
 
 	$(document).ready(function(){
 		
-		var displaytasks = $("#tasklist"); 
+		fetch();
+		
+		function fetch(){
+			var displaytasks = $("#tasks_name"); 
 			
-		$.ajax({
-			type:"GET",
-			url:"fetch.php",
-			dataType: "json",
-			success: function(result){
-				console.log(result);
-				var num = 1;
-				var output = "<table class='table-striped table-hover'><thead style='text-align:center'><tr><th>No.</th><th>Task</th><th>Actions</th></thead><tbody>";
-				for (var i in result) {
-					if (result[i].done == 0){output +=
-						"<tr class='listoftasks' data-id='" + result[i].id + "' id='tasktr'><td>" +
-						num +
-						"</td><td class='task' id='tasktxt" + result[i].id + "'>" +
-						result[i].name + "</td><td><button type='submit' class='btn btn-light done' id='btndone' data-id='" + result[i].id + "'>Done</button>"+
-						"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal' data-id='" + result[i].id + "'>Edit</button>" +
-						"<button type='button' class='btn btn-danger delete' id='btndelete' data-id='" + result[i].id + "'>Delete</button>"+
-						"</td></tr>";}
-							
-					else {output +=
-						"<tr class='listoftasks' data-id='" + result[i].id + "' id='tasktr'><td>" +
-						num +
-						"</td><td class='task' style='text-decoration:line-through' id='tasktxt" + result[i].id + "'>" +
-						result[i].name +
-						
-					"</td><td><button type='submit' class='btn btn-dark undone' id='btnundone' data-id='" + result[i].id + "'>Undone</button>" +
-					"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal' data-id='" + result[i].id + "'>Edit</button>" +
-					"<button type='button' class='btn btn-danger delete' id='btndelete' data-id='" + result[i].id + "'>Delete</button>"+
-					"</td></tr>";}
-					+ num++;
-			
+			$.ajax({
+				type:"GET",
+				url:"fetch.php",
+				dataType: "json",
+				success: function(result){
+					var output;
+					for (var i in result) {
+						if (result[i].done == 0){output +=
+							"<tr class='listoftasks' data-id='" + result[i].id + "' id='tasktr'><td class='number' id='number'><span></span>"+
+							"</td><td class='task' id='tasktxt" + result[i].id + "'>" +
+							result[i].name + "</td><td><button type='submit' class='btn btn-light done' id='btndone' data-id='" + result[i].id + "'>Done</button>"+
+							"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal' data-id='" + result[i].id + "'>Edit</button>" +
+							"<button type='button' class='btn btn-danger delete' id='btndelete' data-id='" + result[i].id + "'>Delete</button>"+
+							"</td></tr>";
+						}	
+						else {output +=
+							"<tr class='listoftasks' data-id='" + result[i].id + "' id='tasktr'><td class='number' id='number'><span></span>" +
+							"</td><td class='task' style='text-decoration:line-through' id='tasktxt" + result[i].id + "'>" +
+							result[i].name +
+							"</td><td><button type='submit' class='btn btn-dark undone' id='btnundone' data-id='" + result[i].id + "'>Undone</button>" +
+							"<button type='button' class='btn btn-success edit' data-toggle='modal' data-target='#taskModal' data-id='" + result[i].id + "'>Edit</button>" +
+							"<button type='button' class='btn btn-danger delete' id='btndelete' data-id='" + result[i].id + "'>Delete</button>"+
+							"</td></tr>";
+						}
+					}
+				displaytasks.html(output);
+				numarrange();
+				$("table").addClass("table");
 				}
-				output += "</tbody></table>";
-			displaytasks.html(output);
-			$("table").addClass("table");
-			}
-		});
+			});
+		};
 		
 		$(document).on("keypress", "input", function(enter){
-			if(enter.which == 13){
+			var check = false;
+			var code = (enter.keyCode ? enter.keyCode : enter.which);
+			if(code == 13 &! check){
+				enter.preventDefault();
 				var name = $("#addtasktxt").val();
 				console.log(name);
+				check = true;
 				
 				$.ajax({
 					url:"add.php",
 					type:"POST",
 					data: {
-						"name": name,
+						"name" : name,
+					},
+					success:function(data){
+						var html = '<tr>';
+						html += '<td>1</td>';
+						html += '<td>'+name+'</td>';
+						html += '<td><button type="submit" class="btn btn-light done" id="btndone">Done</button></td>';
+						$('#tasks_name').prepend(html);
+						$('#add_task')[0].reset();
+						numarrange();
 					}
 				});
 				alert("Successfully added task!");
-				window.location.reload();
 				console.log("Ajax 'add' successful!");
 			}
 		});
@@ -213,10 +227,12 @@
 				type:"POST",
 				data: {
 					"id": dataId,
+				},
+				success:function(){
+					fetch();
 				}
 				});
 				alert("Task is done!");
-				window.location.reload();
 				console.log("Ajax 'done' successful");
 		});
 		
@@ -230,10 +246,12 @@
 			type:"POST",
 			data: {
 				"id": dataId,
+			},
+			success:function(){
+				fetch();
 			}
 			});
 			alert("Task is undoned!");
-			window.location.reload();
 			console.log("Ajax 'undone' successful");
 		});
 		
@@ -258,17 +276,19 @@
 				data: {
 					"id" : dataId,
 					"name": change,
+				},
+				success:function(){
+				fetch();
 				}
 				});
 				alert("Task edited successfully!");
-				window.location.reload();
 				console.log("Ajax 'save' successful");
 			});
 		});
 		
 		$(document).on("click", "button.delete", function(){
 			var dataId = $(this).data("id");
-			console.log(dataId);
+			console.log("Current data-id is "+dataId);
 			
 			var sure = confirm("Are you sure you want to delete this task?");
 			if(sure == true){
@@ -277,10 +297,12 @@
 					type:"POST",
 					data: {
 						"id" : dataId,
+					},
+					success:function(){
+					fetch();
 					}
 				});
 				alert("Task deleted successfully!");
-				window.location.reload();
 				console.log("Ajax 'delete' successful");
 			}
 			else{
@@ -288,21 +310,41 @@
 			}
 		});
 		
-		$("#btnAdd").click(function(event){
+		$("#add_task").on("submit", function(event){
 			var name = $("#addtasktxt").val();
 			console.log(name);
-			
+			event.preventDefault();
+			var num = $('#tasks_name tr').length;
+			console.log(num);
 			$.ajax({
 				url:"add.php",
 				type:"POST",
 				data: {
-					"name": name,
+					"name" : name,
+				},
+				success:function(data){
+					var html = '<tr>';
+					html += '<td>1</td>';
+					html += '<td>'+name+'</td>';
+					html += '<td><button type="submit" class="btn btn-light done" id="btndone">Done</button></td>';
+					$('#tasks_name').prepend(html);
+					$('#add_task')[0].reset();
+					numarrange();
 				}
 			});
 			alert("Successfully added task!");
-			window.location.reload();
 			console.log("Ajax 'add' successful!");
 		});
+		
+		function numarrange(){
+			var num = $("#tasks_name tr").length;
+			console.log(num);
+			$("td.number").each(function(index, element){
+				console.log(index);
+				console.log(element);
+				$("span").text(index);
+			});
+		};
 		
 	});
 

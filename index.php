@@ -43,7 +43,7 @@
 			max-width:500px;
 			padding:20px;
 			border-radius:5px;
-			box-shadow:3px 3px 0 rgba(0, 0, 0, .1);
+			box-shadow:20px 20px 0 rgba(0, 0, 0, .1);
 			box-sizing:border-box;
 		}
 		
@@ -380,6 +380,7 @@
 		$("#add_task").on("submit", function(event){
 			var num = $("#tasks_name tr").length;
 			var name = $("#addtasktxt").val();
+			event.preventDefault();
 			console.log(name);
 			check = true;
 				

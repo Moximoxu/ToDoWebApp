@@ -223,7 +223,7 @@
 					success:function(result){
 						var id = result.id;
 						var html = '<tr class="listoftasks" data-id="' + id + '" id="tasktr' + id + '">';
-						html += '<td class="newnumber" id="newnumber"><span class="newnumber"></span></td>';
+						html += '<td class="newnumber" id="newnumber"><span class="newnumber'+click+'"><p id="num1">1</p></span></td>';
 						html += '<td class="task tundone" id="tasktxt' + id + '">' + name;
 						html += '<td><button type="submit" class="btn btn-light done" id="btndone'+id+'" data-id="'+id+'">Done</button>';
 						html += '<button type="submit" class="btn btn-dark undone" id="btnundone' + id + '" data-id="' + id + '" style="display:none">Undone</button>';
@@ -412,16 +412,18 @@
 		};
 		
 		function newnumarr(start){
-			var num = $("#tasks_name tr").length;
+			$("#num1").hide("400");
 			var numbers = [];
 			var integ = 1;
 			//Inserting integers into array
-			for (var i=0; i < num; i++){
+			for (var i=0; i <= start; i++){
 				numbers [i] = integ;
+				console.log(integ);
 				integ++;
 			}
+			console.log(numbers);
 			$.each(numbers, function(index, value){
-				$("span.newnumber").text(value+start);
+				$("span.newnumber" + index).text(-1*(value-integ));
 				console.log(value);
 			});
 		}

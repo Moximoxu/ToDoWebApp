@@ -38,7 +38,7 @@
 	
 		.card{
 			background-color:#d6f5d6;
-			margin:20px auto;
+			margin:30px auto;
 			width:100%;
 			max-width:500px;
 			padding:20px;
@@ -97,6 +97,8 @@
 				<a class="nav-link text-white" id="navLogo" href="#"><b>WhatToDo</b></a>
 			</li>
 		</ul>
+		<button type="button" class="btn btn-warning" id="btnloginpage" onclick="redirect_login()">Login</button>
+		<button type="button" class="btn btn-danger" id="btnlogout" onclick="kill_session()">Logout</button>
 	</nav>
 	
 </head>
@@ -104,7 +106,7 @@
 <body>
 	<div class="row">
 		<div class="col-lg-12">
-			<div class="card">
+			<div class="card my-3">
 				<div class="card-header">
 					<h2 class="header">Ikhmal's Tasks</h2>
 				</div>
@@ -201,7 +203,7 @@
 		};
 		
 		var count = 1;
-		$(document).on("keypress", "input", function(enter){
+		$("#addtasktxt").on("keypress", "input", function(enter){
 			var check = false;
 			var code = (enter.keyCode ? enter.keyCode : enter.which);
 			if(code == 13 &! check){
@@ -265,8 +267,8 @@
 					$(bttnundone).show("400");
 					$(bttndone).hide("400");
 				}
-				});
-				console.log("Ajax 'done' successful");
+			});
+			console.log("Ajax 'done' successful");
 		});
 		
 		$(document).on("click", "button.undone", function(){
@@ -312,6 +314,31 @@
 			console.log(task);
 			$("#editTasktxt").val(task);
 			console.log(dataId);
+			
+			$("#editTasktxt").on("keypress", "input", function(enter){
+			var check = false;
+			var code = (enter.keyCode ? enter.keyCode : enter.which);
+				if(code == 13 &! check){
+					console.log(dataId);
+					var change = $("#editTasktxt").val();
+					console.log(change);
+						
+					$.ajax({
+					url:"edit.php",
+					type:"POST",
+					data: {
+						"id" : dataId,
+						"name": change,
+					},
+					success:function(){
+						fetch();
+						$("#tasktxt" + dataId).attr("class", att);
+					}
+					});
+					getalertmodal("Task edited", "Task successfully edited");
+					console.log("Ajax 'save' successful");
+				}
+			});
 			
 			$(document).on("click", "button.save", function(){
 			
@@ -421,7 +448,7 @@
 			$("#editTasktxt").hide("400");
 			$("#btnok").show("400");
 			$("#btnsavechanges").hide("400");
-		}
+		};
 		
 		function numarrange(start){
 			if(start > 0 ){
@@ -436,7 +463,26 @@
 				});	
 			}
 		};
+		
 	});
+	
+	function redirect_login(){
+		location.href = "http://todo.test/login.php";
+		console.log("redirect_login successfully run");
+	};
+	
+	function kill_session(){
+		$.ajax({
+			url:"kills.php",
+			type:"POST",
+			success:function(){
+				redirect_login();
+				console.log("Successfully logged out");
+			}
+			
+		});
+	};
+	
 
 </script>
 	
